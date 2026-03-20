@@ -1,0 +1,17 @@
+.clearBtn {
+  width: 100%;
+  padding: 10px;
+  background: #f8dbdb;
+  color: #c62828;
+  border: 1px solid #f5c6c6;
+  border-radius: 8px;
+  font-family: 'Segoe UI', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clearBtn:hover {
+  background: #f5c6c6;
+  color: #b71c1c;
+}

@@ -1,0 +1,41 @@
+.container {
+  background: #fcebd8;
+  border-radius: 16px;
+  padding: 20px 20px 32px 20px;
+  margin-bottom: 4px;
+}
+
+.labelContainer {
+  text-align: center;
+  margin-bottom: 0px;
+}
+
+.label {
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+  font-size: 28px;
+  letter-spacing: 2px;
+}
+
+.winner {
+  color: #2e7d32;
+}
+
+.loser {
+  color: #c62828;
+}
+
+.expScore {
+  text-align: center;
+  font-weight: 800;
+  font-size: 20px;
+  margin-bottom: 4px;
+  color: #222;
+}
+
+.cardGrid {
+  display: flex;
+  justify-content: space-evenly;
+  gap: 16px;
+  flex-wrap: wrap;
+}

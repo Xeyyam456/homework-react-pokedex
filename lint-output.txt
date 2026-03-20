@@ -1,0 +1,13 @@
+
+> homework-react-pokedex@0.0.0 lint
+> eslint .
+
+
+D:\Praqramlasdirma\Homeworks\React-Pokedex\homework-react-pokedex\src\components\Headers\Headers.jsx
+  9:19  error  'gameStarted' is defined but never used  no-unused-vars
+
+D:\Praqramlasdirma\Homeworks\React-Pokedex\homework-react-pokedex\src\components\Pokemon card.jsx\PokemonCard.jsx
+  14:10  error  Parsing error: Identifier 'TYPE_COLORS' has already been declared
+
+✖ 2 problems (2 errors, 0 warnings)
+

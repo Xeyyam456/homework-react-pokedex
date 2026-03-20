@@ -1,0 +1,9 @@
+.divider {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 900;
+  margin: 0px 0;
+  color: #111;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 4px;
+}

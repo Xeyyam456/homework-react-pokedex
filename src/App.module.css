@@ -1,0 +1,26 @@
+.pageWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 30px;
+  padding: 10px 50px;
+  background: #f0f2f5;
+  height: 98vh;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+}
+
+.appContainer {
+  flex: 1;
+  min-width: 600px;
+  background: #fff;
+  padding: 10px 24px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}

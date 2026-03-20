@@ -1,0 +1,70 @@
+.historyItem {
+  background: #fcfcfc;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.2s ease;
+}
+
+.historyItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.matchNum {
+  font-size: 11px;
+  font-weight: 800;
+  color: #888;
+  text-transform: uppercase;
+  border-bottom: 1px dashed #e8e8e8;
+  padding-bottom: 6px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.historyScores {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.teamScore {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.teamLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #888;
+}
+
+.expVal {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.winner {
+  color: #2e7d32;
+}
+
+.loser {
+  color: #c62828;
+}
+
+.draw {
+  color: #f57f17;
+}
+
+.vsBadge {
+  font-size: 14px;
+  font-weight: 800;
+  color: #bbb;
+  font-family: 'Bangers', cursive;
+  letter-spacing: 1px;
+}
