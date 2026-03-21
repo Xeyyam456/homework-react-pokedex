@@ -1,1 +1,3 @@
-export { default } from "./TeamSection";
+import TeamSection from "./TeamSection";
+
+export default TeamSection;

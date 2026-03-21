@@ -1,12 +1,4 @@
-// =============================================
-// components/TeamSection.jsx
-// Bir takımı (4 Pokémon) gösteren bölüm
-// Props:
-//   team     – 4 Pokémon objesi içeren dizi
-//   totalExp – Takımın toplam EXP puanı
-//   isWinner – true=kazandı, false=kaybetti, null=henüz belli değil
-//   revealed – Kartların açık/kapalı olduğunu belirler
-// =============================================
+
 
 import PokemonCard from "../PokemonCard";
 import styles from "./TeamSection.module.css";

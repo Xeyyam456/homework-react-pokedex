@@ -1,1 +1,3 @@
-export { default } from "./VsDivider";
+import VsDivider from "./VsDivider";
+
+export default VsDivider;

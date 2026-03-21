@@ -1,7 +1,4 @@
-// =============================================
-// components/VsDivider.jsx
-// İki takım arasında gösterilen "VS" ayırıcısı
-// =============================================
+
 
 import styles from "./VsDivider.module.css";
 
