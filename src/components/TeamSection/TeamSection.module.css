@@ -1,8 +1,10 @@
 .container {
   background: #fcebd8;
   border-radius: 16px;
-  padding: 20px 20px 32px 20px;
+  padding: 16px 16px 24px 16px;
   margin-bottom: 4px;
+  overflow-x: auto; /* Allow horizontal scroll for the grid on very small space */
+  -webkit-overflow-scrolling: touch;
 }
 
 .labelContainer {
@@ -34,8 +36,22 @@
 }
 
 .cardGrid {
-  display: flex;
-  justify-content: space-evenly;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  flex-wrap: wrap;
+  min-width: 500px; /* Ensure 4 cards always have a minimum usable space for horizontal scroll */
+}
+
+/* Vertical stack for mobile */
+@media (max-width: 700px) {
+  .container {
+    overflow-x: hidden; /* No longer need horizontal scroll */
+  }
+
+  .cardGrid {
+    grid-template-columns: 1fr; /* Single column stack */
+    min-width: auto;
+    gap: 12px;
+    justify-items: center; /* Center cards in the stack */
+  }
 }

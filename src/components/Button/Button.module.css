@@ -1,0 +1,55 @@
+.button {
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 0.95;
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+.primary {
+  background: #e94335;
+  color: #fff;
+}
+
+.restart {
+  background: linear-gradient(135deg, #3b5bdb, #228be6);
+  color: #fff;
+  border-radius: 50px;
+}
+
+.endGame {
+  background: linear-gradient(135deg, #fa5252, #f03e3e);
+  color: #fff;
+  border-radius: 50px;
+}
+
+.ghost {
+  background: rgba(255, 255, 255, 0.1);
+  color: inherit;
+  backdrop-filter: blur(4px);
+}
+
+.outline {
+  background: transparent;
+  border: 2px solid currentColor;
+  box-shadow: none;
+}

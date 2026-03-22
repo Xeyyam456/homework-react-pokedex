@@ -1,56 +1,79 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 import Header from "./components/Header";
 import TeamSection from "./components/TeamSection";
 import VsDivider from "./components/VsDivider";
 import HistorySidebar from "./components/HistorySidebar";
+import StartScreen from "./components/StartScreen";
+import ResultModal from "./components/ResultModal";
 import { ALL_POKEMON } from "./data/pokemon";
 import styles from "./App.module.css";
 import { shuffle, calcTotalExp } from "./utils/helpers";
 
-let initialHistorySaved = false;
-
-function App() {
-  const [shuffled] = useState(() => shuffle(ALL_POKEMON));
+function buildMatch(savedHistory) {
+  const shuffled = shuffle(ALL_POKEMON);
   const team1 = shuffled.slice(0, 4);
   const team2 = shuffled.slice(4, 8);
-
   const exp1 = calcTotalExp(team1);
   const exp2 = calcTotalExp(team2);
+  const matchNum = savedHistory.length > 0 ? savedHistory[0].matchNum + 1 : 1;
+  return {
+    match: { id: Date.now(), matchNum, team1Exp: exp1, team2Exp: exp2, winner: exp1 > exp2 ? 1 : exp2 > exp1 ? 2 : 0 },
+    team1,
+    team2,
+    exp1,
+    exp2,
+  };
+}
 
-  const team1Winner = exp1 > exp2;
-  const team2Winner = exp2 > exp1;
+function getSavedHistory() {
+  try {
+    return JSON.parse(localStorage.getItem("pokedexHistoryList")) || [];
+  } catch {
+    return [];
+  }
+}
 
-  const [historyList, setHistoryList] = useState(() => {
-    let savedHistory = [];
-    try {
-      savedHistory = JSON.parse(localStorage.getItem("pokedexHistoryList")) || [];
-    } catch (e) {
-      console.error(e);
-    }
+function App() {
+  const hasPlayed = useRef(false);
+  const [gameState, setGameState] = useState(null); // null = start screen
+  const [historyList, setHistoryList] = useState(getSavedHistory);
+  const [showResult, setShowResult] = useState(false);
 
-    if (!initialHistorySaved) {
-      initialHistorySaved = true;
-      const newMatch = {
-        id: Date.now(),
-        matchNum: savedHistory.length > 0 ? savedHistory[0].matchNum + 1 : 1,
-        team1Exp: exp1,
-        team2Exp: exp2,
-        winner: exp1 > exp2 ? 1 : exp2 > exp1 ? 2 : 0
-      };
-
-      const newHistoryList = [newMatch, ...savedHistory].slice(0, 20);
-      localStorage.setItem("pokedexHistoryList", JSON.stringify(newHistoryList));
-      return newHistoryList;
-    }
-    
-    return savedHistory;
-  });
+  const handleStart = () => {
+    const savedHistory = getSavedHistory();
+    const { match, team1, team2, exp1, exp2 } = buildMatch(savedHistory);
+    const newHistoryList = [match, ...savedHistory].slice(0, 20);
+    localStorage.setItem("pokedexHistoryList", JSON.stringify(newHistoryList));
+    setHistoryList(newHistoryList);
+    hasPlayed.current = true;
+    setGameState({ team1, team2, exp1, exp2 });
+  };
 
   const handleClearHistory = () => {
     localStorage.removeItem("pokedexHistoryList");
     setHistoryList([]);
   };
+
+  const handleEndGame = () => {
+    setShowResult(true);
+  };
+
+  const handleReset = () => {
+    handleClearHistory();
+    setGameState(null);
+    setShowResult(false);
+    hasPlayed.current = false;
+  };
+
+  const calculateResults = () => {
+    const wins = historyList.filter(m => m.winner === 1).length;
+    const losses = historyList.filter(m => m.winner === 2).length;
+    const draws = historyList.filter(m => m.winner === 0).length;
+    return { wins, losses, draws, total: historyList.length };
+  };
+
+  const showingGame = gameState !== null;
 
   return (
     <div className={styles.pageWrapper}>
@@ -60,28 +83,48 @@ function App() {
         rel="stylesheet"
       />
 
+      {!showingGame && (
+        <StartScreen onStart={handleStart} hasPlayed={hasPlayed.current} />
+      )}
+
       <div className={styles.appContainer}>
-        <Header />
-
-        <TeamSection
-          team={team1}
-          totalExp={exp1}
-          isWinner={team1Winner}
-          revealed={true}
+        <Header 
+          onRestart={showingGame ? handleStart : undefined} 
+          onEndGame={showingGame && historyList.length > 0 ? handleEndGame : undefined} 
         />
 
-        <VsDivider />
+        {showingGame && (
+          <>
+            <TeamSection
+              team={gameState.team1}
+              totalExp={gameState.exp1}
+              isWinner={gameState.exp1 > gameState.exp2}
+              revealed={true}
+            />
 
-        <TeamSection
-          team={team2}
-          totalExp={exp2}
-          isWinner={team2Winner}
-          revealed={true}
-        />
+            <VsDivider />
+
+            <TeamSection
+              team={gameState.team2}
+              totalExp={gameState.exp2}
+              isWinner={gameState.exp2 > gameState.exp1}
+              revealed={true}
+            />
+          </>
+        )}
       </div>
 
-      <HistorySidebar historyList={historyList} onClear={handleClearHistory} />
+      <div className={styles.sidebarContainer}>
+        <HistorySidebar historyList={historyList} onClear={handleClearHistory} />
+      </div>
 
+      {showResult && (
+        <ResultModal 
+          results={calculateResults()} 
+          onRestart={handleReset} 
+          onClose={() => setShowResult(false)} 
+        />
+      )}
     </div>
   );
 }

@@ -25,13 +25,14 @@ src/
 ├── utils/
 │   └── helpers.js     → Saf (pure) köməkçi funksiyalar
 └── components/
-    ├── Header/        → Səhifənin başlığı ("Pokédex")
+    ├── Header/        → Səhifənin başlığı ("Pokédex") + "Restart" və "End Game" düymələri
     ├── TeamSection/   → Bir komanddakı 4 kart + EXP + qalib etiketi
-    ├── PokemonCard/   → Tək Pokémon kartı
+    ├── PokemonCard/   → Tək Pokémon kartı (yeni Button komponenti ilə)
     ├── VsDivider/     → İki komanda arasındakı "VS" görsəli
     ├── HistorySidebar/→ Sağ tərəfdəki oyun tarixçəsi paneli
-    ├── HistoryItem/   → Tarixçədəki hər bir oyun sətri
-    └── ClearButton/   → "Clear History" düyməsi
+    ├── StartScreen/   → Oyunun ilk açılış ekranı (Overlay)
+    ├── ResultModal/   → Oyun sonu ümumi nəticələr (Wins/Losses)
+    └── Button/        → Təkrar istifadə oluna bilən universal düymə komponenti
 ```
 
 > **Niyə hər komponent qovluğunda `index.jsx` var?**  
@@ -571,19 +572,153 @@ JSON.stringify() → localStorage.setItem()
 setHistoryList(newHistoryList) → UI güncəllənir
 ```
 
+
 ---
 
-## 🧬 Komponent İyerarxiyası
+## 🚀 Yeni Özelliklər (V2) — Sətir-Sətir İzah
 
+Bu versiyada oyuna **Start Screen**, **End Game** modalı və **Reusable Button** sistemi əlavə edilib.
+
+### `StartScreen.jsx` — Giriş Overlay-i
+
+```jsx
+function StartScreen({ onStart, hasPlayed }) {
 ```
-App
-├── Header                  (prop yoxdur)
-├── TeamSection             (team, totalExp, isWinner, revealed)
-│   └── PokemonCard × 4    (pokemon, revealed)
-├── VsDivider               (prop yoxdur)
-├── TeamSection             (team, totalExp, isWinner, revealed)
-│   └── PokemonCard × 4    (pokemon, revealed)
-└── HistorySidebar          (historyList, onClear)
-    ├── ClearButton         (onClick, text?)
-    └── HistoryItem × N     (match)
+> - `onStart` → Düyməyə klikləyəndə oyunu başladan funksiya (`App.jsx`-dən gəlir).
+> - `hasPlayed` → Oyunun ən azı bir dəfə oynanılıb-oynanılmadığını yoxlayır (düymə mətnini dəyişmək üçün).
+
+```jsx
+<Button variant="restart" onClick={onStart}>
+  {hasPlayed ? "🔄 Restart" : "⚔️ Start"}
+</Button>
+```
+> - Əgər oyunçu ilk dəfə daxil olubsa `"Start"`, artıq bir dəfə oynayıbsa `"Restart"` mətni göstərilir.
+> - `variant="restart"` → Universal `Button` komponentinin sarı/qızılı stil variantından istifadə edir.
+
+---
+
+### `App.jsx` — Yeni State Məntiqi
+
+```jsx
+const [gameState, setGameState] = useState(null);
+```
+> - `gameState` → Tətbiqin "rejimi"ni idarə edir.
+> - `null` olduqda → Biz hələ `StartScreen`-dəyik.
+> - Obyekt olduqda (`{ team1, team2, ... }`) → Oyun ekranındayıq.
+
+```jsx
+const handleStart = () => {
+    const { match, team1, team2, exp1, exp2 } = buildMatch(savedHistory);
+    setGameState({ team1, team2, exp1, exp2 });
+};
+```
+> - Bu funksiya hər klik zamanı yeni Pokémon komandaları yaradır və `gameState`-i doldurur.
+> - `setGameState`-ə məlumat ötürən kimi React avtomatik olaraq `StartScreen`-i bağlayır və oyun taxtasını açır.
+
+```jsx
+const handleReset = () => {
+    handleClearHistory();
+    setGameState(null);
+    hasPlayed.current = false;
+};
+```
+> - "Start New Game" düyməsinə kliklədikdə bütün tarixçəni silir və istifadəçini ən başdakı giriş ekranına qaytarır.
+
+---
+
+### `ResultModal.jsx` — Ümumi Hesabat
+
+```jsx
+const calculateResults = () => {
+    const wins = historyList.filter(m => m.winner === 1).length;
+    const losses = historyList.filter(m => m.winner === 2).length;
+    return { wins, losses, total: historyList.length };
+};
+```
+> - `historyList.filter(...)` → Tarixçədəki bütün oyunları gəzir və qalibiyyət/məğlubiyyətləri sayır.
+> - Məsələn: `winner === 1` t1 (istifadəçi tərəfi) qalibiyyətləridir.
+
+---
+
+### `Button.jsx` — Universal Düymə Komponenti
+
+```jsx
+const Button = ({ children, variant = "primary", ...props }) => {
+```
+> - `children` → Düymənin içindəki mətn və ya icon.
+> - `variant` → Düymənin rəngi və stilini müəyyən edir (`primary`, `restart`, `endGame`, `ghost`, `outline`).
+> - `...props` → Düyməyə verilən bütün digər atributları (`onClick`, `href`, `target` və s.) birbaşa elementə ötürür.
+
+---
+
+## 🎨 CSS Modules & Data Attributes
+
+Artıq layihədə **heç bir inline style (`style={{...}}`) yoxdur**.
+
+```jsx
+<div data-type={pokemon.type} className={styles.card}>
+```
+> - `data-type` → Pokémon-un tipini (məsələn: `fire`) HTML atributu kimi qeyd edir.
+> - CSS faylında: `.card[data-type="fire"] { --poke-color: #FF6B35; }`
+> - Bu metod sayəsində hər Pokémon tipi üçün fərqli rənglər tamamilə CSS-də idarə olunur, JavaScript kodu isə təmiz qalır.
+
+---
+
+### 📱 Responziv Dizayn & MacBook Dəstəyi
+
+Tətbiq artıq bütün cihazlara (MacBook, Planşet, Telefon) tam uyğunlaşdırılıb.
+
+#### `App.module.css` — Media Queries
+
+```css
+@media (max-width: 1440px) { ... }
+```
+> - **MacBook/Laptop**: `1440px` ekranlarda `padding` və `gap` dəyərləri azaldılır. Bu, 4 Pokémon kartının ekrana sığmasını və dizayn səliqəliyini təmin edir.
+
+```css
+@media (max-width: 1100px) { ... }
+```
+> - **Tarixçənin Gizlədilməsi**: Ekran `1100px`-dən kiçik olduqda `sidebarContainer` üçün `display: none` tətbiq edilir. Bu, diqqəti tamamilə oyuna yönəltmək üçün Match History-ni gizlədir.
+> - **Vertical Layout**: `pageWrapper` tək sütun (column) rejiminə keçir və `100vh` hündürlük alır.
+
+---
+
+### `TeamSection.module.css` — Stabillik və Mobil Görünüş
+
+```css
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+```
+> - **4-Sütunlu Grid**: Hər komandada həmişə 4 kartın yanaşı olması üçün `grid-template-columns: repeat(4, 1fr)` istifadə olunur.
+> - **Horizontal Scroll**: Planşet ekranlarında (`700px - 1100px`) kartlar aşağıya sürüşmür, əksinə **üfüqi (horizontal) scroll** yaranır. Bu, dizaynın stabilliyini qoruyur.
+
+```css
+@media (max-width: 700px) {
+  .cardGrid { grid-template-columns: 1fr; }
+}
+```
+> - **Mobil Stack (< 700px)**: Telefon ekranlarında kartlar artıq yanaşı deyil, **üst-üstə (alt-alta)** düzülür. Bu, hər kartın tam ölçüdə görünməsini təmin edir.
+
+---
+
+### 🖱️ Xüsusi Scrollbar (Custom Scrollbar)
+
+Loyihəyə premium görünüş verən **custom scrollbar** əlavə edilib.
+
+#### `index.css` — Webkit Stilləri
+
+```css
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+```
+> - **Premium Görünüş**: Brauzerin standart boz scrollbar-ı əvəzinə, Pokedex mövzusuna uyğun dairəvi və minimalist bir dizayn tətbiq olunub.
+> - **App.module.css**-də `height: 100vh; overflow-y: auto;` köməyi ilə bu scrollbar bütün mobil və desktop rejimlərində aktivdir.
+
+---
+
+## 💎 Yekun
+Bu layihə artıq tam mütəşəkkil, təmiz kodlu (**Zero Inline CSS**) və bütün cihazlarda mükəmməl görünən bir React tətbiqidir.
 ```

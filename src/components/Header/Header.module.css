@@ -14,3 +14,10 @@
   /* padding-bottom: 20px; */
   line-height: 1;
 }
+
+.buttonsContainer {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
+}
